@@ -45,10 +45,6 @@ class Bot:
         
         loseStreak = 0
         betStreak = 0
-        # Set field variables
-        # autoButton = driver.find_element_by_css_selector('button.dEISFa:nth-child(2)')
-        # betAmountField = driver.find_element_by_css_selector('#betAmount')
-        # cashoutField = driver.find_element_by_css_selector('.GridRow-wniw1g-0 > label:nth-child(1) > span:nth-child(1) > span:nth-child(1) > input:nth-child(1)')
 
         # Check to see if it's still the same value
         global crashesList
@@ -59,8 +55,8 @@ class Bot:
         
         while self.isRunning:
             print('Current Lose Streak', loseStreak)
-            roobet = driver.page_source
-            soup = BS(roobet, features='html5lib')
+            stake = driver.page_source
+            soup = BS(stake, features='html5lib')
         
             # First wave
             findFirstStatus = soup.find('div', {'class' : 'PastBets-sc-6jzeex-0 Aiaif'})
@@ -91,7 +87,6 @@ class Bot:
                     bet = driver.find_element_by_css_selector('.fbjzSA')
                     bet.click()
                     cancelBet = True
-                    time.sleep(1)
                     print("Bet Placed")
 
                 except:
@@ -105,7 +100,6 @@ class Bot:
                         bet.click()
                         betStreak += 1
                         cancelBet = False
-                        time.sleep(1)
                         print("Bet Cancelled")
 
                     except:
@@ -122,3 +116,110 @@ class Bot:
         driver.quit()
 
 
+class Roobet:
+    
+    def __init__(self, isRunning=True):
+        self.isRunning = isRunning
+
+    def isUpdated(self, firstCrashValues, crashValues):
+        return firstCrashValues != crashValues
+
+    def stopBot(self):
+        self.isRunning = False
+
+    # Find the first win/loss status here
+    def runBot(self, desiredStreak):
+        ''' This Function Automatically Place Bets Based On Loss Streak, Only Works For Stake Crash '''
+
+        cwd = os.path.dirname(os.path.abspath(__file__))
+
+        # Set up options and URL
+        url = 'https://roobet.com/crash'
+        PATH = cwd + '\\chromedriver.exe'
+
+        options = WD.ChromeOptions()
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_experimental_option('useAutomationExtension', False)
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+
+        # Load URL here
+        driver = WD.Chrome(options=options, executable_path=PATH)
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        driver.get(url)
+
+        # Wait for website to load and log in
+        time.sleep(60)
+        
+        print("URL Loaded")
+        
+        loseStreak = 0
+        betStreak = 0
+
+        # Check to see if it's still the same value
+        global crashesList
+        global latestCrashValue
+        latestCrashValue = 5.00 #Random value
+        crashesList = []
+        cancelBet = False
+        
+        while self.isRunning:
+            print('Current Lose Streak', loseStreak)
+            roobet = driver.page_source
+            soup = BS(roobet, features='html5lib')
+        
+            # First wave
+            findFirstStatus = soup.find('div', {'class' : 'jss110'})
+            firstCrashes = findFirstStatus.findChildren('div')
+            firstCrashesList = [i.text for i in firstCrashes]
+            latestCrash = firstCrashes[0].text[0:-1]
+            # Remove all commas in thousands
+            if ',' in latestCrash:
+                latestCrash = latestCrash.replace(',', '')
+
+            latestCrashValue = float(latestCrash)
+            
+
+            print(firstCrashesList, crashesList)
+            print(latestCrashValue)
+
+            # Lose condition
+            if latestCrashValue < 2.00 and self.isUpdated(firstCrashesList, crashesList):
+                # If under 2, increment loss streak
+                loseStreak += 1
+                print("Lose Streak Incremented")
+            elif latestCrashValue >= 2.00:
+                loseStreak = 0
+        
+            # When lose streak is at desired loss
+            if loseStreak == desiredStreak and self.isUpdated(firstCrashesList, crashesList):
+                try:
+                    bet = driver.find_element_by_css_selector('button.MuiButton-contained:nth-child(1)')
+                    bet.click()
+                    cancelBet = True
+                    print("Bet Placed")
+
+                except:
+                    print("Click Failed")
+                    pass
+            
+            # Win condition. Once bot detects a win, it will not bet until next desired lose streak.
+            if latestCrashValue >= 2.00 and cancelBet == True:
+                    try:
+                        bet = driver.find_element_by_css_selector('button.MuiButton-contained:nth-child(1)')
+                        bet.click()
+                        betStreak += 1
+                        cancelBet = False
+                        print("Bet Cancelled")
+
+                    except:
+                        print("Click Failed")
+                        pass
+
+            findSecondStatus = soup.find('div', {'class' : 'jss110'})
+            crashes = findSecondStatus.findChildren('div')
+            crashesList = [i.text for i in crashes]
+
+
+            time.sleep(0.5)
+        
+        driver.quit()

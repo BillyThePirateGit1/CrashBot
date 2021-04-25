@@ -7,25 +7,39 @@ import threading as t
 class Main:
 
     def __init__(self):
-        self.bot = bet.Bot()
+        self.stake = bet.Bot()
+        self.roobet = bet.Roobet()
 
     def quitBot(self, canvas):
-        self.bot.stopBot()
+        self.stake.stopBot()
+        self.roobet.stopBot()
         canvas.quit()
 
-    def startBot(self, lossStreak=8):
+    def startBotStake(self, lossStreak=8):
 
         if str.isdigit(lossStreak):
             if int(lossStreak) <= 0:
                 tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer Higher than 0")
             else:
                 tk.messagebox.showwarning(title="Reminder", message="Don't Forget To Log In")
-                botThread = t.Thread(target=(self.bot.runBot), args=(int(lossStreak), ))
+                botThread = t.Thread(target=(self.stake.runBot), args=(int(lossStreak), ))
                 botThread.start()
 
         else:
             tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer")
 
+    def startBotRoobet(self, lossStreak=8):
+
+        if str.isdigit(lossStreak):
+            if int(lossStreak) <= 0:
+                tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer Higher than 0")
+            else:
+                tk.messagebox.showwarning(title="Reminder", message="Don't Forget To Log In")
+                botThread = t.Thread(target=(self.roobet.runBot), args=(int(lossStreak), ))
+                botThread.start()
+
+        else:
+            tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer")
         
     def draw(self, canvas): 
             
@@ -46,8 +60,11 @@ class Main:
         desiredLossField.grid(row=0, column=0, padx=5, pady=5)
 
         #Button
-        tk.Button(bottomFrame, text="Submit",
-                command=lambda: self.startBot(desiredLossField.get())).grid(row=0, column=1)
+        tk.Button(bottomFrame, text="Stake",
+                command=lambda: self.startBotStake(desiredLossField.get())).grid(row=0, column=1)
+        tk.Button(bottomFrame, text="Roobet",
+                command=lambda: self.startBotRoobet(desiredLossField.get())).grid(row=0, column=2, padx=4)
+        
         tk.Button(bottomFrame, text="Quit",
                 command=lambda: self.quitBot(canvas)).grid(row=1, column=1, pady=5)
 
