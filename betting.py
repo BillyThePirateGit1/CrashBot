@@ -179,8 +179,8 @@ class Roobet:
             latestCrashValue = float(latestCrash)
             
 
-            print(firstCrashesList, crashesList)
-            print(latestCrashValue)
+            # print(firstCrashesList, crashesList)
+            # print(latestCrashValue)
 
             # Lose condition
             if latestCrashValue < 2.00 and self.isUpdated(firstCrashesList, crashesList):
