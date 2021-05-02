@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup as BS
 from selenium import webdriver as WD
-import undetected_chromedriver as uc
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import pickle
 import os
 
 class Bot:
@@ -25,11 +25,12 @@ class Bot:
         cwd = os.path.dirname(os.path.abspath(__file__))
 
         # Set up options and URL
-        url = 'https://stake.com/casino/games/crash/automated'
+        url = 'https://stake.com/casino/games/crash/'
         PATH = cwd + '\\chromedriver.exe'
 
         options = WD.ChromeOptions()
         options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument('user-data-dir=C:\\Users\\'+ os.getenv('username') +'\\AppData\\Local\\Google\\Chrome\\User Data')
         options.add_experimental_option('useAutomationExtension', False)
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
 
@@ -39,7 +40,7 @@ class Bot:
         driver.get(url)
 
         # Wait for website to load and log in
-        time.sleep(60)
+        time.sleep(3)
         
         print("URL Loaded")
         
@@ -69,10 +70,6 @@ class Bot:
 
             latestCrashValue = float(latestCrash)
             
-
-            # print(firstCrashesList, crashesList)
-            # print(latestCrashValue)
-
             # Lose condition
             if latestCrashValue < 2.00 and self.isUpdated(firstCrashesList, crashesList):
                 # If under 2, increment loss streak
@@ -128,7 +125,7 @@ class Roobet:
         self.isRunning = False
 
     # Find the first win/loss status here
-    def runBot(self, desiredStreak):
+    def runBot(self, desiredStreak, baseBet=0.05):
         ''' This Function Automatically Place Bets Based On Loss Streak, Only Works For Stake Crash '''
 
         cwd = os.path.dirname(os.path.abspath(__file__))
