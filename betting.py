@@ -19,7 +19,7 @@ class Bot:
         self.isRunning = False
 
     # Find the first win/loss status here
-    def runBot(self, desiredStreak):
+    def runBot(self, desiredStreak, baseBet=0.05):
         ''' This Function Automatically Place Bets Based On Loss Streak, Only Works For Stake Crash '''
 
         cwd = os.path.dirname(os.path.abspath(__file__))
@@ -50,9 +50,11 @@ class Bot:
         # Check to see if it's still the same value
         global crashesList
         global latestCrashValue
-        latestCrashValue = 5.00 #Random value
+        latestCrashValue = 5.00 #Can be anything higher than 2.00
         crashesList = []
-        cancelBet = False
+        resetBet = False
+        betAmount = driver.find_element_by_css_selector('#betAmount')
+        betAmount.send_keys(str(baseBet))
         
         while self.isRunning:
             print('Current Lose Streak', loseStreak)
@@ -79,11 +81,17 @@ class Bot:
                 loseStreak = 0
         
             # When lose streak is at desired loss
-            if loseStreak == desiredStreak and self.isUpdated(firstCrashesList, crashesList):
+            if loseStreak >= desiredStreak and self.isUpdated(firstCrashesList, crashesList):
                 try:
                     bet = driver.find_element_by_css_selector('.fbjzSA')
+                    double = driver.find_element_by_css_selector('button.jrFkgF:nth-child(2)')
+                    
+                    # Avoid doubling first round
+                    if loseStreak > desiredStreak:
+                        double.click()
+                    time.sleep(0.4)
                     bet.click()
-                    cancelBet = True
+                    resetBet = True
                     print("Bet Placed")
 
                 except:
@@ -91,13 +99,12 @@ class Bot:
                     pass
             
             # Win condition. Once bot detects a win, it will not bet until next desired lose streak.
-            if latestCrashValue >= 2.00 and cancelBet == True:
+            if latestCrashValue >= 2.00 and resetBet == True:
                     try:
-                        bet = driver.find_element_by_css_selector('.fbjzSA')
-                        bet.click()
-                        betStreak += 1
-                        cancelBet = False
-                        print("Bet Cancelled")
+                        # Reset the bet amount when win is achieved
+                        betAmount.send_keys(str(baseBet))
+                        print("Bet Resetted")
+                        resetBet = False
 
                     except:
                         print("Click Failed")

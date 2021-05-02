@@ -15,20 +15,19 @@ class Main:
         self.roobet.stopBot()
         canvas.quit()
 
-    def startBotStake(self, lossStreak=8):
+    def startBotStake(self, lossStreak, baseBetAmount=0.03):
 
         if str.isdigit(lossStreak):
             if int(lossStreak) <= 0:
                 tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer Higher than 0")
             else:
-                tk.messagebox.showwarning(title="Reminder", message="Don't Forget To Log In")
-                botThread = t.Thread(target=(self.stake.runBot), args=(int(lossStreak), ))
+                botThread = t.Thread(target=(self.stake.runBot), args=(int(lossStreak), float(baseBetAmount), ))
                 botThread.start()
 
         else:
             tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer")
 
-    def startBotRoobet(self, lossStreak=8):
+    def startBotRoobet(self, lossStreak=3):
 
         if str.isdigit(lossStreak):
             if int(lossStreak) <= 0:
@@ -54,19 +53,22 @@ class Main:
 
         #Description
         tk.Label(canvas, text=" Enter the Desired Loss Streak ").grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(canvas, text=" Enter the Base Bet Amount ").grid(row=1, column=0, padx=10, pady=10)
 
         #Entry Field
         desiredLossField = tk.Entry(bottomFrame, width=10)
         desiredLossField.grid(row=0, column=0, padx=5, pady=5)
+        baseBetField = tk.Entry(bottomFrame, width=10)
+        baseBetField.grid(row=2, column=0, padx=15, pady=15)
 
         #Button
         tk.Button(bottomFrame, text="Stake",
-                command=lambda: self.startBotStake(desiredLossField.get())).grid(row=0, column=1)
+                command=lambda: self.startBotStake(desiredLossField.get(), baseBetField.get())).grid(row=0, column=1)
         tk.Button(bottomFrame, text="Roobet",
                 command=lambda: self.startBotRoobet(desiredLossField.get())).grid(row=0, column=2, padx=4)
         
         tk.Button(bottomFrame, text="Quit",
-                command=lambda: self.quitBot(canvas)).grid(row=1, column=1, pady=5)
+                command=lambda: self.quitBot(canvas)).grid(row=2, column=2, pady=5)
 
 
 #Set Up
