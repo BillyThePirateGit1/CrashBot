@@ -27,14 +27,13 @@ class Main:
         else:
             tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer")
 
-    def startBotRoobet(self, lossStreak=3):
+    def startBotRoobet(self, lossStreak=3, baseBetAmount=0.02):
 
         if str.isdigit(lossStreak):
             if int(lossStreak) <= 0:
                 tk.messagebox.showwarning(title="Warning", message="Please Enter an Integer Higher than 0")
             else:
-                tk.messagebox.showwarning(title="Reminder", message="Don't Forget To Log In")
-                botThread = t.Thread(target=(self.roobet.runBot), args=(int(lossStreak), ))
+                botThread = t.Thread(target=(self.roobet.runBot), args=(int(lossStreak), float(baseBetAmount), ))
                 botThread.start()
 
         else:
@@ -65,7 +64,7 @@ class Main:
         tk.Button(bottomFrame, text="Stake",
                 command=lambda: self.startBotStake(desiredLossField.get(), baseBetField.get())).grid(row=0, column=1)
         tk.Button(bottomFrame, text="Roobet",
-                command=lambda: self.startBotRoobet(desiredLossField.get())).grid(row=0, column=2, padx=4)
+                command=lambda: self.startBotRoobet(desiredLossField.get(), baseBetField.get())).grid(row=0, column=2, padx=4)
         
         tk.Button(bottomFrame, text="Quit",
                 command=lambda: self.quitBot(canvas)).grid(row=2, column=2, pady=5)
